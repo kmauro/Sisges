@@ -2,7 +2,7 @@
 
 class Config{
     static public function cnx(){
-        $db = new PDO("mysql:host=localhost;dbname=sisges", "root", "");
+        $db = new PDO("mysql:host=localhost;dbname=sigeco", "root", "");
 
         return $db;
     }

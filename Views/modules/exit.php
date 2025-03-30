@@ -1,7 +1,7 @@
 <?php
 
 
-if(!$_SESSION["ingreso"]){
+if(!$_SESSION["logged"]){
 	header("location:index.php?route=login");
 	exit();
 }else{

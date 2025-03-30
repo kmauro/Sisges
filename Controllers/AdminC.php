@@ -2,18 +2,19 @@
 
 class AdminController{
 
-    public function ingresoC(){
-        if(isset($_POST["usuarioI"])){
-            $datosC = array("usuario"=>$_POST["usuarioI"], "clave"=>$_POST["claveI"]);
+    public function logInC(){
+        if(!empty($_POST["userI"])){
+            $dataC = array("user"=>$_POST["userI"], "pass"=>$_POST["passI"]);
 
-            $tablaDB = "usuarios";
+            $dbTable = "users";
 
-            $respuesta = AdminModel::IngresoM($datosC, $tablaDB);
-            if(isset($respuesta["user"])){
-                if($respuesta["user"] == $_POST["usuarioI"] && $respuesta["contra"] == $_POST["claveI"] ){
+            $answer = AdminModel::logInM($dataC, $dbTable);
+            if(!empty($answer["user"])){
+                if($answer["user"] == $_POST["userI"] && $answer["pass"] == $_POST["passI"] ){
 
                     session_start();
-                    $_SESSION["ingreso"] = true;
+                    $_SESSION["logged"] = true;
+                    $_SESSION["access_level"] = $answer["id_access_level"];
     
                     header("location:index.php?route=dashboard");
                 }else{

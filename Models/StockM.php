@@ -4,14 +4,14 @@ require_once "config.php";
 
 class StockModel{
 
-    public static function mostrarStockM($tablaDB, $datosID){
-        $sql = "SELECT productos.id, productos.nombre AS producto, categorias.nombre AS categoria, subcategorias.nombre AS subcategoria,  precio, cantidad, cantidad_deseada FROM $tablaDB INNER JOIN subcategorias ON productos.subcategoria_id = subcategorias.id INNER JOIN categorias ON subcategorias.categoria_id = categorias.id";
-        if($datosID != 0){
-            $sql = $sql + " WHERE productos.subcategoria_id = :idsubcategoria;";
+    public static function showStockM($dbTable, $dataID = null){
+        $sql = "SELECT products.id, products.name, categories.category, subcategories.subcategory, cost, price, quantity, desired_quantity FROM $dbTable INNER JOIN subcategories ON products.id_subcategory = subcategories.id INNER JOIN categories ON subcategories.id_Category = categories.id";
+        if(!empty($dataID)){
+            $sql = $sql . " WHERE products.id_subcategory = :subcategoryid;";
         }
         $pdo = Config::cnx()->prepare($sql);
-        if($datosID != 0){
-            $pdo->bindParam(":idsubcategoria", $datosID, PDO::PARAM_INT);
+        if(!empty($dataID)){
+            $pdo->bindParam(":subcategoryid", $dataID, PDO::PARAM_INT);
         }
         $pdo->execute();
 
@@ -20,22 +20,30 @@ class StockModel{
         $pdo->close();
     }
 
-    public static function agregarProductoM($tablaDB, $datosRegistro){
+    public static function addProductM($dbTable, $regData, $suppliers){
         try {
 
 
-            $pdo = new PDO("mysql:host=localhost;dbname=sisges", "root", "");
+            $pdo = new PDO("mysql:host=localhost;dbname=sigeco", "root", "");
             $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
             // Insertar producto
-            $stmt = $pdo->prepare("INSERT INTO $tablaDB (nombre, subcategoria_id, precio, cantidad, cantidad_deseada) VALUES (?, ?, ?, ?, ?)");
-            $stmt->execute([$datosRegistro["nombre"], $datosRegistro["subcategoria_id"], $datosRegistro["precio"], $datosRegistro["cantidad"], $datosRegistro["cantidad_deseada"]]);
-    
-            $productoID = $pdo->lastInsertId();
-    
-            $stmt = $pdo->prepare("INSERT INTO productos_proveedores (proveedor_id, producto_id) VALUES (?, ?)");
+            $stmt = $pdo->prepare("INSERT INTO $dbTable (name, id_subcategory, cost, price, quantity, desired_quantity) VALUES (?, ?, ?, ?, ?, ?)");
+            $stmt->execute([$regData["name"], $regData["subcategory_id"], $regData["cost"], $regData["price"], $regData["quantity"], $regData["d_quantity"]]);
+            echo "todo ok";
+            $productId = $pdo->lastInsertId();
+            //REFACTOR THIS
+            //array de producto->proveedores
+            $query = "INSERT INTO supplier_product (id_supplier, id_product) VALUES ";
             
-            if($stmt->execute([$datosRegistro["proveedor"], $productoID])){
+
+            foreach($suppliers as $key => $value /* por cada proveedor seleccionado */){
+                $query = $query."($value, $productId),";
+            }
+            $query = substr($query,0,-1);
+            $query=$query.';';
+            $stmt = $pdo->prepare($query);
+            if($stmt->execute()){
                 return 1;
             }else{
                 return 0;
@@ -46,6 +54,7 @@ class StockModel{
             echo "Error al agregar producto: " . $e->getMessage();
         }
     }
+
 
 }
 
