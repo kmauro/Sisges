@@ -1,27 +1,42 @@
 
 document.addEventListener("DOMContentLoaded", function() {
-    cargarOpciones("categoria", "categorias");
-    cargarOpciones("proveedor", "proveedores");
+    cargarOpciones("category", "categories");
+    cargarOpciones("suppliers", "suppliers");
 
-    document.getElementById("categoria").addEventListener("change", function() {
-        let categoriaId = this.value;
-        cargarOpciones("subcategoria", "subcategorias", categoriaId);
+    document.getElementById("category").addEventListener("change", function() {
+        let categoryId = this.value;
+        cargarOpciones("subcategory", "subcategories", categoryId);
     });
 
-    function cargarOpciones(selectId, tipo, categoriaId = null) {
-        let url = `Controllers/get_data.php?type=${tipo}`;
-        if (categoriaId) {
-            url += `&categoria_id=${categoriaId}`;
+    function cargarOpciones(selectId, type, categoryId = null) {
+        let url = `Controllers/get_data.php?type=${type}`;
+        if (categoryId) {
+            url += `&id_category=${categoryId}`;
         }
 
         fetch(url)
             .then(response => response.json())
             .then(data => {
                 let select = document.getElementById(selectId);
-                select.innerHTML = '<option value="">Seleccione una opción</option>';
-                data.forEach(item => {
-                    select.innerHTML += `<option value="${item.id}">${item.nombre}</option>`;
-                });
+                
+                if(selectId === "suppliers"){
+                    data.forEach(item => {
+                        const div = document.createElement("div");
+                        div.classList.add("form-check");
+                        div.innerHTML = `
+                            <input class="form-check-input" type="checkbox" id="${item.name}" name="suppliers[]" value="${item.id}">
+                            <label class="form-check-label" for="${item.name}">${item.name}</label>
+                        `;
+
+                        select.appendChild(div);
+                    });
+                }else{
+                    select.innerHTML = '<option value="">Seleccione una opción</option>'
+                    data.forEach(item => {
+                        select.innerHTML += `<option value="${item.id}">${item.name}</option>`;
+                    });
+                }
+                
             })
             .catch(error => console.error('Error cargando datos:', error));
     }

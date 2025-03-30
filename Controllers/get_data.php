@@ -3,19 +3,19 @@ require_once '../config.php'; // Incluye la conexión a la base de datos
 
 header('Content-Type: application/json');
 
-if (isset($_GET['type'])) {
+if (!empty($_GET['type'])) {
     $type = $_GET['type'];
 
     try {
-        if ($type == 'categorias') {
-            $stmt = "SELECT id, nombre FROM categorias";
+        if ($type == 'categories') {
+            $stmt = "SELECT id, category as name FROM categories";
             $pdo = Config::cnx()->prepare($stmt);
             $pdo->execute();
-        } elseif ($type == 'subcategorias' && isset($_GET['categoria_id'])) {
-            $pdo = Config::cnx()->prepare("SELECT id, nombre FROM subcategorias WHERE categoria_id = ?");
-            $pdo->execute([$_GET['categoria_id']]);
-        } elseif ($type == 'proveedores') {
-            $stmt = "SELECT id, nombre FROM proveedores";
+        } elseif ($type == 'subcategories' && !empty($_GET['id_category'])) {
+            $pdo = Config::cnx()->prepare("SELECT id, subcategory as name FROM subcategories WHERE subcategories.id_category = ?");
+            $pdo->execute([$_GET['id_category']]);
+        } elseif ($type == 'suppliers') {
+            $stmt = "SELECT id, name FROM suppliers";
             $pdo = Config::cnx()->prepare($stmt);
             $pdo->execute();
         } else {
